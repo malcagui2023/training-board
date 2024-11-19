@@ -12,8 +12,8 @@ initial_red_team = [(10, 40), (20, 20), (20, 60), (40, 50), (50, 40), (40, 30)]
 initial_blue_team = [(100, 20), (100, 40), (100, 60), (110, 40), (70, 30), (70, 50)]
 initial_ball_position = (60, 40)
 
-# Sidebar for controls
-st.sidebar.title("Controls")
+# Sidebar controls for interactivity
+st.sidebar.title("Interactive Controls")
 
 # Red team positions
 st.sidebar.header("Red Team")
@@ -49,5 +49,5 @@ for position in blue_team:
     ax.add_patch(Circle(position, radius=2, color='blue', ec='black', zorder=5))
 ax.add_patch(Circle(ball_position, radius=1, color='white', ec='black', zorder=6))
 
-# Display the pitch using Streamlit
+# Display the interactive pitch
 st.pyplot(fig)
