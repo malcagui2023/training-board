@@ -1,66 +1,53 @@
 import streamlit as st
-import plotly.graph_objects as go
+from mplsoccer import Pitch
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
+
+# Create a soccer pitch
+pitch = Pitch(pitch_type='statsbomb', pitch_color='grass', line_color='white')
+fig, ax = pitch.draw()
 
 # Define initial positions
-initial_red_team = [(10, 40), (20, 40), (20, 60), (40, 50), (60, 40), (40, 30)]
-initial_blue_team = [(100, 20), (100, 40), (100, 60), (120, 40), (70, 30), (70, 50)]
-initial_ball_position = (60, 50)
+initial_red_team = [(10, 40), (20, 20), (20, 60), (40, 50), (50, 40), (40, 30)]
+initial_blue_team = [(100, 20), (100, 40), (100, 60), (110, 40), (70, 30), (70, 50)]
+initial_ball_position = (60, 40)
 
-# Sidebar controls
-reset = st.sidebar.button("Reset")
+# Sidebar for controls
+st.sidebar.title("Controls")
 
-# Store positions in session state
-if "red_team" not in st.session_state or reset:
-    st.session_state.red_team = initial_red_team
-if "blue_team" not in st.session_state or reset:
-    st.session_state.blue_team = initial_blue_team
-if "ball_position" not in st.session_state or reset:
-    st.session_state.ball_position = initial_ball_position
+# Red team positions
+st.sidebar.header("Red Team")
+red_team = [
+    (
+        st.sidebar.slider(f"Red {i+1} X", 0, 120, initial_red_team[i][0]),
+        st.sidebar.slider(f"Red {i+1} Y", 0, 80, initial_red_team[i][1])
+    )
+    for i in range(len(initial_red_team))
+]
 
-# Create Plotly figure
-fig = go.Figure()
+# Blue team positions
+st.sidebar.header("Blue Team")
+blue_team = [
+    (
+        st.sidebar.slider(f"Blue {i+1} X", 0, 120, initial_blue_team[i][0]),
+        st.sidebar.slider(f"Blue {i+1} Y", 0, 80, initial_blue_team[i][1])
+    )
+    for i in range(len(initial_blue_team))
+]
 
-# Add red team players
-for idx, position in enumerate(st.session_state.red_team):
-    fig.add_trace(go.Scatter(
-        x=[position[0]],
-        y=[position[1]],
-        mode='markers+text',
-        marker=dict(size=12, color='red'),
-        text=f"Red {idx + 1}",
-        textposition="top center",
-        name=f"Red {idx + 1}"
-    ))
-
-# Add blue team players
-for idx, position in enumerate(st.session_state.blue_team):
-    fig.add_trace(go.Scatter(
-        x=[position[0]],
-        y=[position[1]],
-        mode='markers+text',
-        marker=dict(size=12, color='blue'),
-        text=f"Blue {idx + 1}",
-        textposition="top center",
-        name=f"Blue {idx + 1}"
-    ))
-
-# Add ball
-fig.add_trace(go.Scatter(
-    x=[st.session_state.ball_position[0]],
-    y=[st.session_state.ball_position[1]],
-    mode='markers',
-    marker=dict(size=10, color='white', line=dict(color='black', width=2)),
-    name="Ball"
-))
-
-# Update layout
-fig.update_layout(
-    title="Interactive Football Training Board",
-    xaxis=dict(range=[0, 120], title="Pitch Width"),
-    yaxis=dict(range=[0, 80], title="Pitch Height"),
-    plot_bgcolor="green",
-    showlegend=False
+# Ball position
+st.sidebar.header("Ball Position")
+ball_position = (
+    st.sidebar.slider("Ball X", 0, 120, initial_ball_position[0]),
+    st.sidebar.slider("Ball Y", 0, 80, initial_ball_position[1])
 )
 
-# Display the figure
-st.plotly_chart(fig, use_container_width=True)
+# Add players to the pitch
+for position in red_team:
+    ax.add_patch(Circle(position, radius=2, color='red', ec='black', zorder=5))
+for position in blue_team:
+    ax.add_patch(Circle(position, radius=2, color='blue', ec='black', zorder=5))
+ax.add_patch(Circle(ball_position, radius=1, color='white', ec='black', zorder=6))
+
+# Display the pitch using Streamlit
+st.pyplot(fig)
